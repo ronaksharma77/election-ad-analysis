@@ -1,0 +1,46 @@
+name: Render Jupyter Notebook
+
+on:
+  push:
+    branches:
+      - main  # Adjust branch name if your default branch is different
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '16'  # Update Node.js version as needed based on GitHub's recommendations
+
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: '3.8'  # Adjust Python version as needed based on available versions
+
+      - name: Install dependencies
+        run: |
+          pip install notebook
+          pip install nbconvert
+          pip install matplotlib
+          pip install plotly  # Add any additional libraries needed
+
+      - name: Run notebook and export HTML
+        run: |
+          jupyter nbconvert --execute --to html "Elections Ad Spending Analysis.ipynb" --output "index.html"
+
+      - name: Commit and push changes
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          commit_message: "Render notebook output"
+          branch: main  # Adjust branch name if necessary
+
+      - name: Push changes
+        uses: ad-m/github-push-action@master
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
